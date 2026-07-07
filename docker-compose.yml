@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kanban-studio
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - KANBAN_DB_PATH=/app/backend/data/kanban.db
+    volumes:
+      - kanban_data:/app/backend/data
+
+volumes:
+  kanban_data:

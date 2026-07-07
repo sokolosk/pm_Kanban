@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kanban Studio API</title>
+  <style>
+    :root {
+      --accent-yellow: #ecad0a;
+      --primary-blue: #209dd7;
+      --secondary-purple: #753991;
+      --navy-dark: #032147;
+      --gray-text: #888888;
+      --surface: #f7f8fb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--surface);
+      color: var(--navy-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: white;
+      border-radius: 32px;
+      padding: 48px;
+      box-shadow: 0 18px 40px rgba(3,33,71,0.12);
+      text-align: center;
+      max-width: 480px;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--navy-dark);
+    }
+    .badge {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: var(--accent-yellow);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+    .status {
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--surface);
+      font-size: 0.9rem;
+    }
+    .status span {
+      color: var(--primary-blue);
+      font-weight: 600;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 12px 32px;
+      border-radius: 999px;
+      background: var(--secondary-purple);
+      color: white;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: filter 0.2s;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    #api-result {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: var(--gray-text);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">API Running</div>
+    <h1>Kanban Studio API</h1>
+    <p style="margin-top: 12px; color: var(--gray-text);">
+      The backend is running. The Kanban frontend will be served here once built.
+    </p>
+    <div class="status">
+      <span>API Status:</span> <span id="status-text">checking...</span>
+    </div>
+    <button class="btn" id="check-api">Check API Health</button>
+    <p id="api-result"></p>
+  </div>
+  <script>
+    document.getElementById('check-api').addEventListener('click', async () => {
+      const el = document.getElementById('api-result');
+      el.textContent = 'Calling /api/health...';
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        el.textContent = `Response: ${JSON.stringify(data)}`;
+        document.getElementById('status-text').textContent = data.status;
+      } catch (err) {
+        el.textContent = `Error: ${err.message}`;
+      }
+    });
+    // Auto-check on load
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        document.getElementById('status-text').textContent = data.status;
+      } catch { /* ignore */ }
+    });
+  </script>
+</body>
+</html>
