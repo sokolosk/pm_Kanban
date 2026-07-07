@@ -15,6 +15,7 @@ import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCardPreview } from "@/components/KanbanCardPreview";
 import { createId, initialData, moveCard, type BoardData } from "@/lib/kanban";
 import { fetchBoards, saveBoard } from "@/lib/api";
+import { AIChatSidebar } from "@/components/AIChatSidebar";
 
 type KanbanBoardProps = {
   token: string;
@@ -242,6 +243,18 @@ export const KanbanBoard = ({ token, user, onLogout }: KanbanBoardProps) => {
           </DragOverlay>
         </DndContext>
       </main>
+      {boardId && (
+        <AIChatSidebar
+          token={token}
+          board={{ ...board, id: boardId }}
+          onBoardUpdate={(updated) => {
+            setBoard(updated);
+            if (updated.id) {
+              setBoardId(updated.id);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

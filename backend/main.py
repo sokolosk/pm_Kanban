@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
-from routes import ai, kanban
+from routes import ai, ai_chat, kanban
 
 app = FastAPI(title="Kanban Studio API", version="0.1.0")
 
@@ -22,6 +22,7 @@ app.add_middleware(
 # Include routers
 app.include_router(kanban.router)
 app.include_router(ai.router)
+app.include_router(ai_chat.router)
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 

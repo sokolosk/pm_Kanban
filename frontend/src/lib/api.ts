@@ -1,3 +1,5 @@
+import type { BoardData } from "./kanban";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "";
 
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -45,4 +47,30 @@ export async function saveBoard(token: string, boardId: string, boardData: any) 
     body: JSON.stringify(boardData),
   });
   return handleResponse<any>(response);
+}
+
+export type AIChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+export type AIChatResponse = {
+  reply: string;
+  board: BoardData | null;
+  board_updated: boolean;
+};
+
+export async function aiChat(
+  token: string,
+  payload: { board: BoardData; message: string; history: AIChatMessage[] }
+) {
+  const response = await fetch(`${API_BASE}/api/ai/chat`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse<AIChatResponse>(response);
 }

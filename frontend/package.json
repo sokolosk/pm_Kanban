@@ -2,14 +2,15 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run --runInBand",
-    "test:unit": "vitest run --runInBand",
-    "test:unit:watch": "vitest --runInBand",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
     "test:all": "npm run test:unit && npm run test:e2e"
   },
