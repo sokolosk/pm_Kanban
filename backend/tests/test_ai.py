@@ -13,7 +13,7 @@ def test_app(monkeypatch, tmp_path) -> FastAPI:
     db_path = tmp_path / "kanban.db"
     monkeypatch.setenv("KANBAN_DB_PATH", str(db_path))
 
-    for module in ["main", "routes.ai", "routes.ai_chat", "routes.kanban", "database"]:
+    for module in ["main", "routes", "routes.ai", "routes.ai_chat", "routes.kanban", "database"]:
         sys.modules.pop(module, None)
 
     main_module = importlib.import_module("main")
