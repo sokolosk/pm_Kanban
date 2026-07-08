@@ -69,6 +69,25 @@ def get_ai_client() -> OpenRouterClient:
     return AI_CLIENT_FACTORY()
 
 
+def _is_valid_board_update(board_update: Any) -> bool:
+    """Guards against a malformed/incomplete AI response wiping the board.
+
+    The AI is expected to echo back a complete board, and save_board_state
+    fully replaces existing columns/cards with whatever is passed in, so an
+    incomplete board_update (e.g. missing columns) would otherwise delete
+    real data.
+    """
+    if not isinstance(board_update, dict):
+        return False
+    columns = board_update.get("columns")
+    cards = board_update.get("cards")
+    if not isinstance(columns, list) or not columns:
+        return False
+    if not isinstance(cards, dict):
+        return False
+    return True
+
+
 def _build_messages(payload: AIChatRequest) -> list[dict[str, str]]:
     messages: list[dict[str, str]] = [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -133,6 +152,9 @@ async def ai_chat(
     board_update = parsed.get("board_update")
 
     if board_update is None:
+        return AIChatResponse(reply=reply_text, board=None, board_updated=False)
+
+    if not _is_valid_board_update(board_update):
         return AIChatResponse(reply=reply_text, board=None, board_updated=False)
 
     board_id = board_update.get("id") or payload.board.get("id")

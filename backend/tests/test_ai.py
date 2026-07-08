@@ -147,3 +147,51 @@ async def test_ai_chat_with_board_update(test_app, test_client):
     assert db_board["title"] == "Kanban Studio (AI)"
     mock_client.chat_completion.assert_awaited_once()
 
+
+@pytest.mark.asyncio
+async def test_ai_chat_with_malformed_board_update_is_ignored(test_app, test_client):
+    """A malformed board_update (e.g. missing columns) must not wipe the board."""
+    database = test_app.state.database_module
+    user_id = database.ensure_default_user()
+    board = database.get_user_boards(user_id)[0]
+    original_column_count = len(board["columns"])
+    assert original_column_count > 0
+
+    mock_client = AsyncMock()
+    mock_client.chat_completion.return_value = {
+        "choices": [
+            {
+                "message": {
+                    "content": json.dumps(
+                        {
+                            "assistant_response": "Done!",
+                            "board_update": {"id": board["id"]},
+                        }
+                    )
+                }
+            }
+        ]
+    }
+
+    ai_chat_module = test_app.state.ai_chat_module
+    test_app.dependency_overrides[ai_chat_module.get_ai_client] = lambda: mock_client
+    try:
+        response = await test_client.post(
+            "/api/ai/chat",
+            json={
+                "board": board,
+                "message": "do something",
+                "history": [],
+            },
+        )
+    finally:
+        test_app.dependency_overrides.pop(ai_chat_module.get_ai_client, None)
+
+    payload = response.json()
+    assert response.status_code == status.HTTP_200_OK
+    assert payload["board_updated"] is False
+    assert payload["board"] is None
+
+    db_board = database.get_board(board["id"])
+    assert len(db_board["columns"]) == original_column_count
+
